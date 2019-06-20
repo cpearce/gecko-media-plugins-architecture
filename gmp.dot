@@ -10,11 +10,13 @@ digraph {
         GMPParent [label="GMPParent\n(one per plugin type,\nplus a clone for every\nactve instance)", style=filled, fillcolor=khaki]
         GMPTimerParent [style=filled, fillcolor=khaki]
         GMPStorageParent [style=filled, fillcolor=khaki]
+        GMPProcessParent [style=filled, fillcolor=khaki]
 
         GeckoMediaPluginServiceParent -> GMPServiceParent
         GMPParent -> GMPStorageParent
         GMPStorageParent [label="GMPStorageParent"]
         GMPParent -> GMPTimerParent
+        GMPParent -> GMPProcessParent
 
         GMPProvider [label="GMPProvider\nJavaScript, Firefox front end,\nmanages plugins", shape=box, style=filled, fillcolor=plum]
         GMPInstallManager [label="GMPInstallManager\nJavaScript, Firefox front end,\nmanages plugin install", shape=box, style=filled, fillcolor=plum]
@@ -45,6 +47,9 @@ digraph {
         GMPVideoDecoderChild [style=filled, fillcolor=khaki]
         GMPVideoEncoderChild [style=filled, fillcolor=khaki]
         GMPContentChild [style=filled, fillcolor=khaki]
+        GMPProcessChild [style=filled, fillcolor=khaki]
+
+        GMPProcessChild -> GMPChild [label="Owns and starts"]
 
         GMPChild -> GMPLoader
         GMPChild -> GMPAdapter
@@ -157,11 +162,12 @@ digraph {
     GMPContentChild -> content_GMPContentParent
     GMPStorageParent -> GMPStorageChild [label="PGMPStorage"]
     GMPTimerParent -> GMPTimerChild [label="PGMPTimer"]
+    GMPProcessParent -> GMPProcessChild
 
     GMPVideoDecoderParent -> GMPVideoDecoderChild
     GMPVideoEncoderParent -> GMPVideoEncoderChild
 
     // Use invisible edge to try to force main process to appear over GMP process.
     edge[style="invis"]
-    GMPMemStorage -> GMPChild
+    GMPDiskStorage -> HTMLMediaElement
 }

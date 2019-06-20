@@ -5,7 +5,7 @@ digraph {
         GMPParent -> main_GMPContentParent
 
         main_GMPContentParent [label="GMPContentParent\n(exists here to pass bridged\nendpoint to content processes)", style=filled, fillcolor=khaki]
-        GeckoMediaPluginServiceParent [label="GeckoMediaPluginServiceParent\n(extends GeckoMediaPluginService)"]
+        GeckoMediaPluginServiceParent [label="GeckoMediaPluginServiceParent\n(extends GeckoMediaPluginService."]
         GMPServiceParent [style=filled, fillcolor=khaki]
         GMPParent [label="GMPParent\n(one per plugin type,\nplus a clone for every\nactve instance)", style=filled, fillcolor=khaki]
         GMPTimerParent [style=filled, fillcolor=khaki]
@@ -21,7 +21,7 @@ digraph {
         GMPProvider [label="GMPProvider\nJavaScript, Firefox front end,\nmanages plugins", shape=box, style=filled, fillcolor=plum]
         GMPInstallManager [label="GMPInstallManager\nJavaScript, Firefox front end,\nmanages plugin install", shape=box, style=filled, fillcolor=plum]
         GMPDownloader [label="GMPDownloader\nJavaScript, Firefox front end,\nmanages plugin download", shape=box, style=filled, fillcolor=plum]
-        GMPProvider -> GeckoMediaPluginServiceParent [label="  addPluginDir()"]
+        GMPProvider -> GeckoMediaPluginServiceParent [label="  addPluginDir(."]
         GMPDownloader -> GMPInstallManager
         GMPInstallManager -> GMPProvider
         {rank=same GMPProvider GMPInstallManager GMPDownloader}
@@ -79,28 +79,28 @@ digraph {
 
         WebRTC [label="WebRTC", shape=box, style=filled, fillcolor=lightblue]
 
-        content_GMPContentParent [label="GMPContentParent\nholds parent actors of active\nprotocols which talk to GMP process", style=filled, fillcolor=khaki]
-        ChromiumCDMProxy [label="ChromiumCDMProxy\n(proxies to GMP thread)"]
-        ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\n(proxies to GMP thread)"]
-        CDMCaps [label="CDMCaps\n(stores key usability)"]
-        SamplesWaitingForKeys [label="SamplesWaitingForKeys\n(ensures samples have all\nkeys required to decrypt\nbefore sending to CDM)"]
-        ChromiumCDMVideoDecoder [label="ChromiumCDMVideoDecoder\n(extends MediaDataDecoder,\ndecrypts & decodes samples)"]
-        EMEDecryptor [label="EMEDecryptor\n(extends MediaDataDecoder,\ndecrypts via CDM,\ndecodes via wrapped\nplatform decoder)"]
+        content_GMPContentParent [label="GMPContentParent\nHolds parent actors of active\nprotocols which talk to GMP process.", style=filled, fillcolor=khaki]
+        ChromiumCDMProxy [label="ChromiumCDMProxy\nProxies to GMP thread."]
+        ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\nProxies to GMP thread."]
+        CDMCaps [label="CDMCaps\nStores key usability."]
+        SamplesWaitingForKeys [label="SamplesWaitingForKeys\nEnsures samples have all\nkeys required to decrypt\nbefore sending to CDM."]
+        ChromiumCDMVideoDecoder [label="ChromiumCDMVideoDecoder\nExtends MediaDataDecoder,\ndecrypts & decodes samples."]
+        EMEDecryptor [label="EMEDecryptor\n(extends MediaDataDecoder,\nDecrypts via CDM,\ndecodes via wrapped\nplatform decoder."]
         MediaKeys [label="MediaKeys\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
         MediaKeySession [label="MediaKeySession\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
         HTMLMediaElement [label="HTMLMediaElement\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
-        MediaKeysGMPCrashHelper [label="MediaKeysGMPCrashHelper\n(accesses WindowID so crash\nreport goes to correct tab)"]
-        ChromiumCDMParent [label="ChromiumCDMParent\n(extends GMPCrashHelperHolder,\nmain actor to send commands to CDM)", style=filled, fillcolor=khaki]
-        GeckoMediaPluginServiceChild [label="GeckoMediaPluginServiceChild\n(extends GeckoMediaPluginService)"]
-        EMEDecoderModule [label="EMEDecoderModule\n(passes ChromiumCDMProxy\nto new decryptors & decoders)"]
-        MediaDecoder [label="MediaDecoder\n(Facade, controls lifecycle\nfor playback pipeline)"]
-        PDMFactory [label="PDMFactory\n(Creates decoders using PDMs)"]
-        MediaDecoderStateMachine [label="MediaDecoderStateMachine\n(manages state of pipeline)"]
-        MediaFormatReader [label="MediaFormatReader\n(runs demuxers & decoders)"]
+        MediaKeysGMPCrashHelper [label="MediaKeysGMPCrashHelper\nAccesses WindowID so crash\nreport goes to correct tab."]
+        ChromiumCDMParent [label="ChromiumCDMParent\nExtends GMPCrashHelperHolder,\nmain actor to send commands to CDM)", style=filled, fillcolor=khaki]
+        GeckoMediaPluginServiceChild [label="GeckoMediaPluginServiceChild\nExtends GeckoMediaPluginService."]
+        EMEDecoderModule [label="EMEDecoderModule\nPasses ChromiumCDMProxy\nto new decryptors & decoders."]
+        MediaDecoder [label="MediaDecoder\nFacade, controls lifecycle\nfor playback pipeline."]
+        PDMFactory [label="PDMFactory\nCreates decoders using PDMs."]
+        MediaDecoderStateMachine [label="MediaDecoderStateMachine\nManages state of pipeline."]
+        MediaFormatReader [label="MediaFormatReader\nRuns demuxers & decoders."]
         Navigator [label="Navigator\nWebIDL binding.", shape=box, style=filled, fillcolor=yellow]
         MediaKeySystemAccessManager [label="MediaKeySystemAccessManager"]
-        MediaKeySystemConfig [label="MediaKeySystemConfig\nWebIDLBinding", shape=box, style=filled, fillcolor=yellow]
-        MediaKeySystemAccess [label="MediaKeySystemAccess", shape=box, style=filled, fillcolor=yellow]
+        MediaKeySystemConfig [label="MediaKeySystemConfig\nWebIDLBinding.", shape=box, style=filled, fillcolor=yellow]
+        MediaKeySystemAccess [label="MediaKeySystemAccess\nWebIDLBinding.", shape=box, style=filled, fillcolor=yellow]
         GMPServiceChild [style=filled, fillcolor=khaki]
         GMPVideoDecoderParent [style=filled, fillcolor=khaki]
         GMPVideoEncoderParent [style=filled, fillcolor=khaki]
@@ -125,7 +125,7 @@ digraph {
         MediaKeysGMPCrashHelper -> MediaKeys
         ChromiumCDMParent -> MediaKeysGMPCrashHelper
         GeckoMediaPluginServiceChild -> MediaKeysGMPCrashHelper [label="On crash,\ngets WindowID"]
-        HTMLMediaElement -> MediaKeys [label="via setMediaKeys()"]
+        HTMLMediaElement -> MediaKeys [label="via setMediaKeys(."]
 
         EMEDecoderModule -> EMEDecryptor [label="creates"]
         EMEDecoderModule -> ChromiumCDMVideoDecoder [label="creates"]

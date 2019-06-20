@@ -4,9 +4,12 @@ digraph {
         GeckoMediaPluginServiceParent -> GMPParent
         GMPParent -> main_GMPContentParent
 
-        main_GMPContentParent [label="GMPContentParent\n(exists here to pass bridged\nendpoint to content processes)"]
+        main_GMPContentParent [label="GMPContentParent\n(exists here to pass bridged\nendpoint to content processes)", style=filled, fillcolor=khaki]
         GeckoMediaPluginServiceParent [label="GeckoMediaPluginServiceParent\n(extends GeckoMediaPluginService)"]
-        GMPParent [label="GMPParent\n(one per plugin type,\nplus a clone for every\nactve instance)"]
+        GMPServiceParent [style=filled, fillcolor=khaki]
+        GMPParent [label="GMPParent\n(one per plugin type,\nplus a clone for every\nactve instance)", style=filled, fillcolor=khaki]
+        GMPTimerParent [style=filled, fillcolor=khaki]
+        GMPStorageParent [style=filled, fillcolor=khaki]
 
         GeckoMediaPluginServiceParent -> GMPServiceParent
         GMPParent -> GMPStorageParent
@@ -26,6 +29,7 @@ digraph {
 
         GMPStorageParent -> GMPDiskStorage
         GMPStorageParent -> GMPMemStorage
+
     }
 
     main_GMPContentParent -> content_GMPContentParent [style=dotted, label="bridged to"]
@@ -34,8 +38,13 @@ digraph {
         label = "GMP/CDM Process"
 
         GMPAdapter [label="GMPAdapter\nAdapts Widevine\nlib to GMP lib API"]
-        GMPStorageChild [label="GMPStorageChild\nProvides API for\n storage to CDM"]
-        ChromiumCDMChild [label="ChromiumCDMChild\nImplements cdm::Host"]
+        GMPStorageChild [label="GMPStorageChild\nProvides API for\n storage to CDM", style=filled, fillcolor=khaki]
+        ChromiumCDMChild [label="ChromiumCDMChild\nImplements cdm::Host", style=filled, fillcolor=khaki]
+        GMPTimerChild [style=filled, fillcolor=khaki]
+        GMPChild [style=filled, fillcolor=khaki]
+        GMPVideoDecoderChild [style=filled, fillcolor=khaki]
+        GMPVideoEncoderChild [style=filled, fillcolor=khaki]
+        GMPContentChild [style=filled, fillcolor=khaki]
 
         GMPChild -> GMPLoader
         GMPChild -> GMPAdapter
@@ -65,7 +74,7 @@ digraph {
 
         WebRTC [label="WebRTC", shape=box, style=filled, fillcolor=lightblue]
 
-        content_GMPContentParent [label="GMPContentParent\nholds parent actors of active\nprotocols which talk to GMP process"]
+        content_GMPContentParent [label="GMPContentParent\nholds parent actors of active\nprotocols which talk to GMP process", style=filled, fillcolor=khaki]
         ChromiumCDMProxy [label="ChromiumCDMProxy\n(proxies to GMP thread)"]
         ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\n(proxies to GMP thread)"]
         CDMCaps [label="CDMCaps\n(stores key usability)"]
@@ -76,13 +85,20 @@ digraph {
         MediaKeySession [label="MediaKeySession\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
         HTMLMediaElement [label="HTMLMediaElement\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
         MediaKeysGMPCrashHelper [label="MediaKeysGMPCrashHelper\n(accesses WindowID so crash\nreport goes to correct tab)"]
-        ChromiumCDMParent [label="ChromiumCDMParent\n(extends GMPCrashHelperHolder,\nmain actor to send commands to CDM)"]
-        GeckoMediaPluginServiceChild [label="GMPServiceChild\n(extends GeckoMediaPluginService)"]
+        ChromiumCDMParent [label="ChromiumCDMParent\n(extends GMPCrashHelperHolder,\nmain actor to send commands to CDM)", style=filled, fillcolor=khaki]
+        GeckoMediaPluginServiceChild [label="GeckoMediaPluginServiceChild\n(extends GeckoMediaPluginService)"]
         EMEDecoderModule [label="EMEDecoderModule\n(passes ChromiumCDMProxy\nto new decryptors & decoders)"]
         MediaDecoder [label="MediaDecoder\n(Facade, controls lifecycle\nfor playback pipeline)"]
         PDMFactory [label="PDMFactory\n(Creates decoders using PDMs)"]
         MediaDecoderStateMachine [label="MediaDecoderStateMachine\n(manages state of pipeline)"]
         MediaFormatReader [label="MediaFormatReader\n(runs demuxers & decoders)"]
+        Navigator [label="Navigator\nWebIDL binding.", shape=box, style=filled, fillcolor=yellow]
+        MediaKeySystemAccessManager [label="MediaKeySystemAccessManager"]
+        MediaKeySystemConfig [label="MediaKeySystemConfig\nWebIDLBinding", shape=box, style=filled, fillcolor=yellow]
+        MediaKeySystemAccess [label="MediaKeySystemAccess", shape=box, style=filled, fillcolor=yellow]
+        GMPServiceChild [style=filled, fillcolor=khaki]
+        GMPVideoDecoderParent [style=filled, fillcolor=khaki]
+        GMPVideoEncoderParent [style=filled, fillcolor=khaki]
 
         GeckoMediaPluginServiceChild -> content_GMPContentParent
         content_GMPContentParent -> ChromiumCDMParent
@@ -122,6 +138,11 @@ digraph {
         WebrtcGmpVideoDecoder -> WebRTC
         WebrtcGmpVideoEncoder -> WebRTC
 
+        Navigator -> MediaKeySystemAccessManager
+        MediaKeySystemAccess -> MediaKeys
+        MediaKeySystemConfig -> MediaKeySystemAccessManager
+        MediaKeySystemAccessManager -> MediaKeySystemAccess
+
         edge[dir=both]
         CDMCaps -> SamplesWaitingForKeys [label="Ensures keys usable\nbefore decrypt/decode"]
         HTMLMediaElement -> MediaDecoder
@@ -140,9 +161,11 @@ digraph {
     GMPVideoDecoderParent -> GMPVideoDecoderChild
     GMPVideoEncoderParent -> GMPVideoEncoderChild
 
-    // Invisible edge to force GeckoMediaPluginService{Child,Parent} to be closer
-    edge[style=invis]
-    GeckoMediaPluginServiceParent -> GeckoMediaPluginServiceChild
-    edge[style=invis]
-    GMPDiskStorage -> GMPChild
+    // Use invisible edge to try to force main process to appear over GMP process.
+    edge[style="invis"]
+    GMPMemStorage -> GMPChild
+
+    label = "Firefox's Gecko Media Plugin class/process Architecture"
+    labelloc = "t"
+    graph [fontsize = 30.0]
 }

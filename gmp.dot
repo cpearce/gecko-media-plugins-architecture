@@ -1,0 +1,153 @@
+digraph {
+    subgraph cluster_main_process {
+        label = "Main Process";
+        GMPServiceParent -> GMPParent
+        GMPParent -> main_GMPContentParent
+
+        main_GMPContentParent [label="GMPContentParent"]
+        GMPServiceParent [label="GMPServiceParent\n(extends GMPService and\nmozIGeckoMediaPluginService)"]
+    }
+
+    main_GMPContentParent -> content_GMPContentParent [style=dotted, label="bridged to"]
+
+    subgraph cluster_gmp_process {
+        label = "GMP/CDM Process"
+        GMPChild -> GMPLoader
+        GMPLoader -> cdm [label="Loads via GMPAdapter"]
+
+        cdm [label="cdm::ContentDecryptionModule"]
+        GMPChild -> GMPContentChild
+        GMPContentChild -> ChromiumCDMChild
+        ChromiumCDMChild -> cdm
+    }
+
+    subgraph cluster_content_process {
+        label = "Content Process"
+
+        content_GMPContentParent [label="GMPContentParent"]
+        ChromiumCDMProxy [label="ChromiumCDMProxy\n(proxies to GMP thread)"]
+        ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\n(proxies to GMP thread)"]
+        CDMCaps [label="CDMCaps\n(stores key usability)"]
+        MediaDataDecoder [label="MediaDataDecoder\n(decorated as necessary)"]
+        SamplesWaitingForKeys [label="SamplesWaitingForKeys\n(ensures samples have all\nkeys required to decrypt\nbefore sending to CDM)"]
+        ChromiumCDMVideoDecoder [label="ChromiumCDMVideoDecoder\n(decrypts & decodes samples)"]
+        EMEDecryptor [label="EMEDecryptor\n(decrypts via CDM,\ndecodes via wrapped decoder)"]
+        MediaKeys [label="MediaKeys\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
+        MediaKeySession [label="MediaKeySession\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
+        HTMLMediaElement [label="HTMLMediaElement\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
+        MediaKeysGMPCrashHelper [label="MediaKeysGMPCrashHelper\n(accesses WindowID so crash\nreport goes to correct tab)"]
+        ChromiumCDMParent [label="ChromiumCDMParent\n(extends GMPCrashHelperHolder)"]
+        GMPServiceChild [label="GMPServiceChild\n(extends GMPService and\nmozIGeckoMediaPluginService)"]
+        EMEDecoderModule [label="EMEDecoderModule\n(passes ChromiumCDMProxy\nto new decryptors & decoders)"]
+        libcubeb [label="libcubeb\n(renders audio)", shape=box, style=filled, fillcolor=lightblue]
+        MediaShutdownManager [label="MediaShutdownManager\n(shutdown observer)"]
+        MediaDecoder [label="MediaDecoder\n(Facade, controls lifecycle\nfor playback pipeline)"]
+        PDMFactory [label="PDMFactory\n(Creates decoders using PDMs)"]
+        AudioSink [label="AudioSink\n(renders audio,\nmanages audio clock)"]
+        VideoSink [label="VideoSink\n(buffers decoded video\nframes, syncs video frames\n to audio/wall clock)"]
+        MediaDecoderStateMachine [label="MediaDecoderStateMachine\n(manages state of pipeline)"]
+        VideoFrameContainer [label="VideoFrameContainer\n(outputs to GFX, renders video\nframe queue to wall clock time stamps", shape=box, style=filled, fillcolor=lightblue]
+        MediaFormatReader [label="MediaFormatReader\n(runs demuxers & decoders)"]
+        demuxer_lib [label="Demuxing libriares\n(libnestegg, mp4parse, etc)", shape=box, style=filled, fillcolor=lightblue]
+        ChannelMediaDecoder [label="ChannelMediaDecoder\n(src=url)"]
+        MediaSourceDecoder [label="MediaSourceDecoder\n(MSE playback)"]
+        SourceBufferList [label="SourceBufferList", shape=box, style=filled, fillcolor=yellow]
+        SourceBuffer [label="SourceBuffer", shape=box, style=filled, fillcolor=yellow]
+        ChannelMediaResource [label="ChannelMediaResource\n(src=url)"]
+        MediaCacheStream [label="MediaCacheStream\n(manages HTTP channel)"]
+        MediaCache [label="MediaCache\n(caches media data on disk)"]
+        MediaResource [label="MediaResource\n(Interface)"]
+        MediaTrackDemuxer [label="MediaTrackDemuxer\n(Interface)"]
+
+        MediaSource [label="MediaSource\nWebIDL binding", shape=box, style=filled, fillcolor=yellow]
+
+        MediaSource -> MediaSourceDecoder
+        MediaSource -> HTMLMediaElement
+        MediaSource -> SourceBufferList
+        SourceBufferList -> SourceBuffer
+        MediaSourceDecoder -> MediaSourceDemuxer
+        MediaSourceDemuxer -> MediaDataDemuxer
+        MediaSourceDemuxer -> TrackBuffersManager
+
+        MediaSourceDemuxer -> MediaSourceTrackDemuxer
+        MediaSourceTrackDemuxer -> MediaTrackDemuxer
+
+
+        GMPServiceChild -> content_GMPContentParent
+        content_GMPContentParent -> ChromiumCDMParent
+        ChromiumCDMParent -> ChromiumCDMCallbackProxy
+        ChromiumCDMCallbackProxy -> MediaKeys
+        ChromiumCDMProxy -> MediaKeys [label="Proxies callbacks\nto main thread\nvia weak ref"]
+        ChromiumCDMProxy -> ChromiumCDMParent
+        ChromiumCDMProxy -> CDMCaps
+        ChromiumCDMVideoDecoder -> ChromiumCDMParent
+        EMEDecryptor -> ChromiumCDMParent [label="Decrypts"]
+        EMEDecryptor -> MediaDataDecoder
+        ChromiumCDMVideoDecoder -> SamplesWaitingForKeys
+        ChromiumCDMVideoDecoder -> MediaDataDecoder
+        EMEDecryptor -> SamplesWaitingForKeys
+        {rank=same EMEDecryptor ChromiumCDMVideoDecoder}
+
+        MediaDataDecoder -> MediaFormatReader
+        MediaDataDemuxer -> MediaFormatReader
+        MediaDataDemuxer -> MediaTrackDemuxer [label="creates"]
+        MediaTrackDemuxer -> MediaFormatReader
+        MediaTrackDemuxer -> demuxer_lib
+        {rank=same MediaDataDemuxer MediaDataDecoder}
+
+        MediaKeys -> MediaKeySession
+        MediaKeys -> ChromiumCDMProxy [label="Initiates\nCDM\ncreation"]
+        MediaKeysGMPCrashHelper -> MediaKeys
+        ChromiumCDMParent -> MediaKeysGMPCrashHelper
+        GMPServiceChild -> MediaKeysGMPCrashHelper [label="On crash,\ngets WindowID"]
+        HTMLMediaElement -> MediaKeys [label="via setMediaKeys()"]
+
+        EMEDecoderModule -> EMEDecryptor [label="creates"]
+        EMEDecoderModule -> ChromiumCDMVideoDecoder [label="creates"]
+        EMEDecoderModule -> ChromiumCDMProxy
+
+        PlatformDecoderModule -> MediaDataDecoder [label="creates"]
+
+        MediaTrackDemuxer -> MediaResourceIndex [label="Reads from"]
+        MediaResourceIndex -> MediaResource [label="Caches data from"]
+        MediaResource -> ChannelMediaResource
+        MediaResource -> SourceBufferResource
+        ChannelMediaResource -> MediaCacheStream
+        MediaCacheStream -> MediaCache
+
+        ChannelMediaResource -> ChannelMediaDecoder
+
+        ChannelMediaDecoder -> MediaDecoder
+        MediaSourceDecoder -> MediaDecoder
+
+        SourceBufferResource -> ResourceQueue
+
+        TrackBuffersManager -> SourceBufferResource
+
+        MediaDecoder -> MediaShutdownManager
+        MediaFormatReader -> PDMFactory
+        PDMFactory -> PlatformDecoderModule
+        PDMFactory -> EMEDecoderModule
+        VideoSink -> VideoFrameContainer
+        MediaDecoderStateMachine -> VideoSink
+        MediaDecoderStateMachine -> AudioSink
+
+        edge[dir=both]
+        CDMCaps -> SamplesWaitingForKeys [label="Ensures keys usable\nbefore decrypt/decode"]
+        HTMLMediaElement -> MediaDecoder
+        MediaDecoder -> MediaDecoderStateMachine
+        MediaDecoderStateMachine -> MediaFormatReader
+        AudioSink -> libcubeb
+        AudioSink -> VideoSink
+
+        {rank=same MediaKeys MediaKeySession}
+        {rank=same VideoSink AudioSink}
+    }
+
+    edge[dir=both]
+    GMPParent -> GMPChild [label=PGMP]
+    GMPServiceChild -> GMPServiceParent [label="PGMPService"]
+    ChromiumCDMParent -> ChromiumCDMChild [label="PChromiumCDM"]
+    GMPContentChild -> content_GMPContentParent
+
+}

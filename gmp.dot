@@ -164,8 +164,4 @@ digraph {
     // Use invisible edge to try to force main process to appear over GMP process.
     edge[style="invis"]
     GMPMemStorage -> GMPChild
-
-    label = "Firefox's Gecko Media Plugin class/process Architecture"
-    labelloc = "t"
-    graph [fontsize = 30.0]
 }

@@ -80,8 +80,8 @@ digraph {
         WebRTC [label="WebRTC", shape=box, style=filled, fillcolor=lightblue]
 
         content_GMPContentParent [label="GMPContentParent\nHolds parent actors of active\nprotocols which talk to GMP process.", style=filled, fillcolor=khaki]
-        ChromiumCDMProxy [label="ChromiumCDMProxy\nProxies to GMP thread."]
-        ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\nProxies to GMP thread."]
+        ChromiumCDMProxy [label="ChromiumCDMProxy\nProxies calls to GMP thread."]
+        ChromiumCDMCallbackProxy [label="ChromiumCDMCallbackProxy\nProxies callbacks from\nGMP thread to main thread."]
         CDMCaps [label="CDMCaps\nStores key usability."]
         SamplesWaitingForKeys [label="SamplesWaitingForKeys\nEnsures samples have all\nkeys required to decrypt\nbefore sending to CDM."]
         ChromiumCDMVideoDecoder [label="ChromiumCDMVideoDecoder\nExtends MediaDataDecoder,\ndecrypts & decodes samples."]
